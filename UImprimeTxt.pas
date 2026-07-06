@@ -8,7 +8,7 @@ uses
 type
   TImprimeTxt = class
   public
-    class procedure SelecionarImpressora(const ANomeImpressora: string);
+    class procedure SelecionarImpressora(const ATrechoNomeImpressora: string);
     class procedure ImprimirTxt(const ATxtFile: string);
   end;
 
@@ -39,7 +39,7 @@ var
     begin
       C := S[X];
 
-      // mantém apenas caracteres imprimíveis e TAB
+      // mantï¿½m apenas caracteres imprimï¿½veis e TAB
       if (C = #9) or (Ord(C) >= 32) then
         Result := Result + C;
     end;
@@ -54,13 +54,13 @@ var
 
 begin
   if not FileExists(ATxtFile) then
-    raise Exception.Create('Arquivo TXT não encontrado: ' + ATxtFile);
+    raise Exception.Create('Arquivo TXT nï¿½o encontrado: ' + ATxtFile);
 
   SL := TStringList.Create;
   try
     SL.LoadFromFile(ATxtFile, TEncoding.ANSI);
 
-    SelecionarImpressora('Microsoft Print to PDF (2 redirecionada)');
+    SelecionarImpressora('Microsoft Print to PDF');
 
     Printer.Orientation := poLandscape;
     Printer.BeginDoc;
@@ -78,12 +78,12 @@ begin
       begin
         Linha := LimparControles(SL[I]);
 
-        // ignora linhas totalmente vazias no começo absoluto
+        // ignora linhas totalmente vazias no comeï¿½o absoluto
         if (not JaIniciouPagina) and (Trim(Linha) = '') then
           Continue;
 
-        // se encontrou novo cabeçalho de página e já havia conteúdo,
-        // força nova página antes de imprimir o cabeçalho
+        // se encontrou novo cabeï¿½alho de pï¿½gina e jï¿½ havia conteï¿½do,
+        // forï¿½a nova pï¿½gina antes de imprimir o cabeï¿½alho
         if EhCabecalhoPagina(Linha) then
         begin
           if JaIniciouPagina then
@@ -95,7 +95,7 @@ begin
           JaIniciouPagina := True;
         end;
 
-        // quebra por limite físico da página
+        // quebra por limite fï¿½sico da pï¿½gina
         if Y + AlturaLinha > Printer.PageHeight - MargemSup then
         begin
           Printer.NewPage;
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-class procedure TImprimeTxt.SelecionarImpressora(const ANomeImpressora: string);
+class procedure TImprimeTxt.SelecionarImpressora(const ATrechoNomeImpressora: string);
 var
   I: Integer;
   Encontrou: Boolean;
@@ -121,7 +121,7 @@ begin
   Encontrou := False;
   for I := 0 to Printer.Printers.Count - 1 do
   begin
-    if SameText(Printer.Printers[I], ANomeImpressora) then
+    if Pos(UpperCase(ATrechoNomeImpressora), UpperCase(Printer.Printers[I])) > 0 then
     begin
       Printer.PrinterIndex := I;
       Encontrou := True;
@@ -129,7 +129,7 @@ begin
     end;
   end;
   if not Encontrou then
-    raise Exception.CreateFmt('Impressora não encontrada: %s', [ANomeImpressora]);
+    raise Exception.CreateFmt('Nenhuma impressora encontrada contendo: %s', [ATrechoNomeImpressora]);
 end;
 
 end.
